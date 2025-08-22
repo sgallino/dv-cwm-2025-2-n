@@ -1,24 +1,33 @@
-import './style.css'
-import javascriptLogo from './javascript.svg'
-import viteLogo from '/vite.svg'
-import { setupCounter } from './counter.js'
+/*
+# Uso de rutas en los imports de npm
+Cuando hacemos un import de un archivo sin especificar un directorio de origen,
+npm asume automáticamente que estamos hablando de un paquete de npm instalado
+y que exista en la carpeta de [node_modules].
 
-document.querySelector('#app').innerHTML = `
-  <div>
-    <a href="https://vite.dev" target="_blank">
-      <img src="${viteLogo}" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" target="_blank">
-      <img src="${javascriptLogo}" class="logo vanilla" alt="JavaScript logo" />
-    </a>
-    <h1>¡Hola Vite! :D</h1>
-    <div class="card">
-      <button id="counter" type="button"></button>
-    </div>
-    <p class="read-the-docs">
-      Click on the Vite logo to learn more
-    </p>
-  </div>
-`
+Por eso es que podemos hacer algo así:
+  import { createApp } from "vue";
 
-setupCounter(document.querySelector('#counter'))
+Esto implica que si queremos importar de un archivo local que no sea un 
+paquete de npm, es imperativo que lo hagamos prefijando un directorio de origen.
+Como ser:
+  - /
+  - ./
+  - ../
+
+Es decir, que deberíamos hacer algo como:
+  import App from "./App.vue";
+
+Si no ponemos ese prefijo, y tratamos de hacer:
+  import App from "./App.vue";
+
+No funciona. Porque npm va a buscar una carpeta [App.vue] en [node_modules].
+*/
+import "./bootstrap.min.css";
+import "./style.css";
+import { createApp } from "vue";
+import router from "./router/router";
+import App from "./App.vue";
+
+const app = createApp(App);
+app.use(router); // Registramos el router en la aplicación.
+app.mount('#app');
