@@ -1,21 +1,26 @@
-// Este es el archivo de configuración de Vite.
-// Como todo archivo [.config.js] debe exportar un objeto de configuración.
-// Este paquete del plugin lo podemos instalar:
-//  npm install --save-dev @vitejs/plugin-vue
-//
-// ¿Qué significa el flag "--save-dev" (o "-D")?
-// Que queremos que registre este paquete como una "dependencia de desarrollo".
-//
-// ¿Qué diferencia tiene una dependencia común de una de desarrollo?
-// La diferencia es en qué entornos de ejecución queremos que cada paquete se
-// instale.
-// Las dependencias comunes se instalan siempre.
-// Las dependencias de desarrollo solo se instalan en entornos de desarrollo
-// o testing. No así en los entornos de producción.
+// El [vite.config.js] es el archivo de configuración de Vite.
+// Como todos los archivos de configuración que usan la extensión de
+// ".config.js", debe exportar por defecto un objeto de configuración.
+
+// Para instalar el plugin de Vue para Vite corrimos el comando:
+//  npm install --save-dev @vitejs/plugin-vue@6
+
+// ¿Qué implica el flag "--save-dev"?
+// Este flag (al igual que su sintaxis alternativa "-D") indica que
+// el paquete debe instalarse como una "dependencia de desarrollo". En
+// inglés, "dev dependency".
+
+// ¿Qué diferencia tiene una "devDependency" y una "dependency" común?
+// En qué entorno de ejecución debería incluirse.
+// Las "dev dependencies" indican que solo hay que instalar esos 
+// paquetes si estamos corriendo en entornos de desarrollo o testing.
+// Pero no es entorno de "producción".
+// Las "dependencies" comunes se deben instalar siempre.
 import vue from '@vitejs/plugin-vue';
+import tailwindcss from '@tailwindcss/vite';
 
 export default {
-    // La propiedad "plugins" recibe un array de los plugins para Vite.
-    // Cada plugin típicamente sale del retorno de alguna función.
-    plugins: [vue()],
+    // La propiedad "plugins" permite registrar un array de plugins
+    // para Vite.
+    plugins: [vue(), tailwindcss()],
 }

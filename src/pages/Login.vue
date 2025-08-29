@@ -1,18 +1,19 @@
 <script>
+import AppH1 from '../components/AppH1.vue';
+
 export default {
     name: 'Login',
+    components: { AppH1, },
 }
 </script>
 
 <template>
-    <h1>Ingresar a mi cuenta</h1>
+    <AppH1>Ingresar a mi cuenta</AppH1>
 
     <form action="#">
         <div class="mb-3">
             <label for="email" class="mb-2">Email</label>
             <input type="email" id="email" class="form-control">
-            <!-- ARIA => Accessible Rich Internet Applications -->
-            <!-- <input type="email" id="email" class="form-control" placeholder="Email" aria-label="Email"> -->
         </div>
         <div class="mb-3">
             <label for="password" class="mb-2">Contraseña</label>

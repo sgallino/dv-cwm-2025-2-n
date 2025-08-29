@@ -1,33 +1,36 @@
 /*
-# Uso de rutas en los imports de npm
-Cuando hacemos un import de un archivo sin especificar un directorio de origen,
-npm asume automáticamente que estamos hablando de un paquete de npm instalado
-y que exista en la carpeta de [node_modules].
-
-Por eso es que podemos hacer algo así:
+# Rutas en los imports de scripts procesados por npm (y Vite)
+Cuando nosotros queremos importar el contenido de un paquete de npm
+que hayamos instalado, como podría ser el createApp del paquete de
+'vue', podemos hacerlo con la siguiente sintaxis:
   import { createApp } from "vue";
 
-Esto implica que si queremos importar de un archivo local que no sea un 
-paquete de npm, es imperativo que lo hagamos prefijando un directorio de origen.
-Como ser:
-  - /
-  - ./
-  - ../
+Esto funciona, porque cualquier ruta que indiquemos en el import que
+no empiece con un directorio se considera automáticamente como el nombre
+de un paquete de npm que debe estar instalado.
 
-Es decir, que deberíamos hacer algo como:
+Si queremos importar archivos propios, que no sean paquetes descargados
+de npm, siempre tenemos que empezar con algún directorio. Por ejemplo:
+- /
+- ./
+- ../
+
+Es decir, que si queremos importar el archivo de [App.vue]:
   import App from "./App.vue";
 
-Si no ponemos ese prefijo, y tratamos de hacer:
-  import App from "./App.vue";
+Noten que agregamos el "./" delante.
+Si no lo ponen, y en su lugar escriben:
+  import App from "App.vue";
 
-No funciona. Porque npm va a buscar una carpeta [App.vue] en [node_modules].
+No va a funcionar. Va a buscar un paquete de npm llamado "App.vue" que
+debería estar instalado y figurar en la carpeta de [node_modules].
 */
-import "./bootstrap.min.css";
-import "./style.css";
+// import './bootstrap.min.css';
+import './style.css';
 import { createApp } from "vue";
-import router from "./router/router";
+import router from './router/router';
 import App from "./App.vue";
 
 const app = createApp(App);
-app.use(router); // Registramos el router en la aplicación.
+app.use(router); // Registramos el router en nuestra app.
 app.mount('#app');

@@ -1,13 +1,28 @@
 <!doctype html>
-<html lang="es">
+<html lang="es" class="h-full">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DV Social</title>
   </head>
-  <body>
-    <div id="app"></div>
+  <body class="h-full">
+    <!-- 
+    # Trabajando con valores arbitrarios en Tailwind
+    Si necesitamos poner valores arbitrarios para algún estilo con Tailwind,
+    lo podemos hacer escribiendo ese valor entre corchetes donde va el valor
+    de la clase.
+    Por ejemplo:
+        p-[25px]                            padding: 25px;
+        w-[calc(100%-2rem)]                 width: calc(100% - 2rem);
+
+    Importante:
+    Dentro del string del atributo class los espacios sirven para separar
+    una clase de otra.
+    Si nuestro valor tiene espacios, los tenemos que reemplazar con "_".
+        .grid-rows-[60px_1fr_100px]         grid-template-rows: 60px 1fr 100px;
+    -->
+    <div id="app" class="grid grid-rows-[60px_1fr_100px] h-full"></div>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>
