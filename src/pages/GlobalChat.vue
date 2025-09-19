@@ -1,5 +1,6 @@
 <script>
 import AppH1 from '../components/AppH1.vue';
+import { fetchGlobalChatLastMessages, sendGlobalChatNewMessage, subscribeToGlobalChatNewMessages } from '../services/global-chat';
 import { supabase } from '../services/supabase';
 
 export default {
@@ -22,34 +23,61 @@ export default {
         }
     },
     methods: {
-        handleSubmit() {
-            this.messages.push({
-                id: this.messages.length,
-                email: this.newMessage.email,
-                content: this.newMessage.content,
-                created_at: new Date(),
-            });
+        async handleSubmit() {
+            try {
+                await sendGlobalChatNewMessage({
+                    email: this.newMessage.email,
+                    content: this.newMessage.content,
+                });
+            } catch (error) {
+                // TODO ...
+            }
 
             this.newMessage.content = '';
         }
     },
     async mounted() {
-        // El cliente de Supabase tiene métodos para trabajar con sus distintos servicios.
-        // El método "from()" permite interactuar con una tabla.
-        // Presten especial atención al "await".
-        // Podemos considerar que el "await" es el que ejecuta el query.
-        const { data, error } = await supabase
-            // .from() recibe el nombre de la tabla sobre la que queremos hacer consultas,
-            // y retorna un objeto con métodos para ejecutar esas consultas.
-            .from('global_chat_messages')
-            // .select() realiza un SELECT.
-            .select();
+        subscribeToGlobalChatNewMessages(async newMessage => {
+            this.messages.push(newMessage);
+            
+            await this.$nextTick();
+            
+            this.$refs.chatContainer.scrollTop = this.$refs.chatContainer.scrollHeight;
+        });
+        
+        this.messages = await fetchGlobalChatLastMessages();
 
-        if(error) {
-            throw new Error(error); // TODO: Manejar
-        }
+        // $refs es la propiedad especial de la Options API que contiene todas las template
+        // refs del componente.
+        // console.log("Alto del contenedor del chat antes del $nextTick es: ", this.$refs.chatContainer.scrollHeight);
+        
+        /*
+            ¿Qué hace el nextTick?
+            Una de las tareas más exigentes que pueden tener que realizar los browsers es 
+            dibujar / renderizar (paint) la página.
+            Por esta razón, es que Vue no actualiza el DOM apenas tiene alguna indicación de
+            hacerlo.
+            Por ejemplo, cuando lo agregamos los nuevos mensajes de chat, eso implica que 
+            tiene que actualizar el DOM, para actualizar la lista de HTML.
+            Pero no lo hace de una. Sino que espera un rato para ver si hay más cambios que
+            se pidan sobre el DOM.
+            Trata de hacer un "batch" de múltiples cambios para aplicarlos todos juntos,
+            y ahorrar repaintings.
 
-        this.messages = data;
+            Típicamente, esto puede pasar desapercibido por nosotros. Vue es bastante hábil
+            en cómo maneja este tipo de repaintings.
+
+            Pero hay circunstancias donde nosotros necesitamos explícitamente esperar a que
+            alguna modificación del DOM se realice antes de proceder. Como es este caso de
+            actualizar la ubicación del scroll.
+
+            Eso es lo que nextTick() hace. Retorna una Promise que se resuelve cuando Vue
+            ejecuta un repainting a través de modificar el DOM.
+        */
+        await this.$nextTick();
+        
+        // console.log("Alto del contenedor del chat después del $nextTick es: ", this.$refs.chatContainer.scrollHeight);
+        this.$refs.chatContainer.scrollTop = this.$refs.chatContainer.scrollHeight;
     }
 }
 </script>
@@ -58,7 +86,12 @@ export default {
     <AppH1>Chat general</AppH1>
 
     <div class="flex gap-4">
-        <section class="overflow-y-auto w-9/12 h-100 p-4 border border-gray-200 rounded">
+        <!-- 
+        En Vue, podemos agregarle a los elementos de HTML un atributo "ref" que contenga un identificador.
+        Este identificador permite que el elemento del DOM sea accesible en el script a través de una 
+        "template ref".
+        -->
+        <section class="overflow-y-auto w-9/12 h-100 p-4 border border-gray-200 rounded" ref="chatContainer">
             <h2 class="sr-only">Lista de mensajes</h2>
             <ol class="flex flex-col items-start gap-4">
                 <!-- 
