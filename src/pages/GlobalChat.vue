@@ -1,7 +1,6 @@
 <script>
 import AppH1 from '../components/AppH1.vue';
 import { fetchGlobalChatLastMessages, sendGlobalChatNewMessage, subscribeToGlobalChatNewMessages } from '../services/global-chat';
-import { supabase } from '../services/supabase';
 
 export default {
     name: 'GlobalChat',
@@ -11,7 +10,7 @@ export default {
     // con el tiempo.
     // En Vue, estamos valores son "reactivos", lo que significa que Vue actualiza el HTML
     // re-renderizando el <template> cada vez que estos valores cambien.
-    // Para regsitrar los valores, data debe recibir una función que retorne un array con los
+    // Para registrar los valores, data debe recibir una función que retorne un array con los
     // valores iniciales del "state".
     data() {
         return {

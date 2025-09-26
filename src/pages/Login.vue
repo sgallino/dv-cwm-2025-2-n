@@ -1,24 +1,61 @@
 <script>
 import AppH1 from '../components/AppH1.vue';
+import { login } from '../services/auth';
 
 export default {
     name: 'Login',
     components: { AppH1, },
+    data() {
+        return {
+            user: {
+                email: '',
+                password: '',
+            },
+            loading: false,
+        }
+    },
+    methods: {
+        async handleSubmit() {
+            try {
+                this.loading = true;
+
+                await login(this.user.email, this.user.password);
+           
+                this.$router.push('/mi-perfil');
+            } catch (error) {
+                // TODO...
+            }
+            this.loading = false;
+        }
+    }
 }
 </script>
 
 <template>
     <AppH1>Ingresar a mi cuenta</AppH1>
 
-    <form action="#">
-        <div class="mb-3">
-            <label for="email" class="mb-2">Email</label>
-            <input type="email" id="email" class="form-control">
+    <form
+        action="#"
+        @submit.prevent="handleSubmit"
+    >
+        <div class="mb-4">
+            <label for="email" class="block mb-1">Email</label>
+            <input
+                type="email"
+                id="email"
+                class="w-full p-2 border border-gray-300 rounded"
+                v-model="user.email"
+            >
         </div>
-        <div class="mb-3">
-            <label for="password" class="mb-2">Contraseña</label>
-            <input type="password" id="password" class="form-control">
+        <div class="mb-4">
+            <label for="password" class="block mb-1">Contraseña</label>
+            <input
+                type="password"
+                id="password"
+                class="w-full p-2 border border-gray-300 rounded"
+                v-model="user.password"
+            >
         </div>
-        <button type="submit" class="btn btn-primary">Ingresar</button>
+        <button type="submit" class="transition px-4 py-2 rounded cursor-pointer bg-blue-600 hover:bg-blue-500 focus:bg-blue-500 active:bg-blue-700 text-white">Ingresar</button>
     </form>
 </template>

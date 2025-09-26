@@ -1,6 +1,10 @@
 // Este servicio ofrece funciones para interactuar con el chat global.
 import { supabase } from "./supabase";
 
+/**
+ * 
+ * @param {{email: String, content: String}} data
+ */
 export async function sendGlobalChatNewMessage({email, content}) {
     // Hacemos el insert en la tabla del backend.
     const { data, error } = await supabase
@@ -16,6 +20,10 @@ export async function sendGlobalChatNewMessage({email, content}) {
     }
 }
 
+/**
+ * 
+ * @returns {Promise<{id: String, email: String, content: String, created_at: String}[]>}
+ */
 export async function fetchGlobalChatLastMessages() {
     // El cliente de Supabase tiene métodos para trabajar con sus distintos servicios.
     // El método "from()" permite interactuar con una tabla.
@@ -36,6 +44,10 @@ export async function fetchGlobalChatLastMessages() {
     return data;
 }
 
+/**
+ * 
+ * @param {(newMessage: {id: String, email: String, content: String, created_at: String}) => void} callback 
+ */
 export function subscribeToGlobalChatNewMessages(callback) {
     // Agregamos la recepción de nuevos mensajes en tiempo real, con la ayuda de la API
     // Realtime.

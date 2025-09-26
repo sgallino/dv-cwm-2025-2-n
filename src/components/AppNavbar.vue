@@ -1,6 +1,29 @@
 <script>
+import { logout, subscribeToAuthStateChanges } from '../services/auth';
+
 export default {
     name: 'AppNavbar',
+    data() {
+        return {
+            user: {
+                id: null,
+                email: null,
+            },
+        }
+    },
+    methods: {
+        handleLogout() {
+            logout();
+
+            // Redireccionamos al login.
+            // Para redireccionar con Vue Router, tenemos que usar el método push() del Router.
+            // El Router lo tenemos disponible en la propiedad $router.
+            this.$router.push('/ingresar');
+        }
+    },
+    mounted() {
+        subscribeToAuthStateChanges(userState => this.user = userState);
+    }
 }
 </script>
 
@@ -29,15 +52,30 @@ export default {
             <li>
                 <RouterLink to="/">Home</RouterLink>
             </li>
-            <li>
-                <RouterLink to="/chat">Chat general</RouterLink>
-            </li>
-            <li>
-                <RouterLink to="/ingresar">Ingresar</RouterLink>
-            </li>
-            <li>
-                <RouterLink to="/crear-cuenta">Crear cuenta</RouterLink>
-            </li>
+            <template v-if="user.id === null">
+                <li>
+                    <RouterLink to="/ingresar">Ingresar</RouterLink>
+                </li>
+                <li>
+                    <RouterLink to="/crear-cuenta">Crear cuenta</RouterLink>
+                </li>
+            </template>
+            <template v-else>
+                <li>
+                    <RouterLink to="/chat">Chat general</RouterLink>
+                </li>
+                <li>
+                    <RouterLink to="/mi-perfil">Mi perfil</RouterLink>
+                </li>
+                <li>
+                    <form 
+                        action="#"
+                        @submit.prevent="handleLogout"
+                    >
+                        <button type="submit">{{ user.email }} (Cerrar sesión)</button>
+                    </form>
+                </li>
+            </template>
         </ul>
     </nav>
 </template>
