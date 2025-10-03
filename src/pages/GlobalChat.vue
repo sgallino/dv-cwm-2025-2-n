@@ -1,10 +1,15 @@
 <script>
 import AppH1 from '../components/AppH1.vue';
+import AppLoader from '../components/AppLoader.vue';
+import { subscribeToAuthStateChanges } from '../services/auth';
 import { fetchGlobalChatLastMessages, sendGlobalChatNewMessage, subscribeToGlobalChatNewMessages } from '../services/global-chat';
+
+let unsubscribeFromAuth = () => {}
+let unsubscribeFromChat = () => {}
 
 export default {
     name: 'GlobalChat',
-    components: { AppH1, },
+    components: { AppH1, AppLoader, },
     // data nos permite definir el "state" del componente.
     // Entendemos por "state" los valores que son propios del componente y que pueden variar
     // con el tiempo.
@@ -15,17 +20,27 @@ export default {
     data() {
         return {
             messages: [],
+            loadingMessages: false,
+
             newMessage: {
-                email: '',
                 content: '',
-            }
+            },
+            
+            user: {
+                id: null,
+                email: null,
+                display_name: null,
+                bio: null,
+                career: null,
+            },
         }
     },
     methods: {
         async handleSubmit() {
             try {
                 await sendGlobalChatNewMessage({
-                    email: this.newMessage.email,
+                    sender_id: this.user.id,
+                    email: this.user.email,
                     content: this.newMessage.content,
                 });
             } catch (error) {
@@ -36,7 +51,11 @@ export default {
         }
     },
     async mounted() {
-        subscribeToGlobalChatNewMessages(async newMessage => {
+        this.loadingMessages = true;
+
+        unsubscribeFromAuth = subscribeToAuthStateChanges(userState => this.user = userState);
+
+        unsubscribeFromChat = subscribeToGlobalChatNewMessages(async newMessage => {
             this.messages.push(newMessage);
             
             await this.$nextTick();
@@ -45,6 +64,8 @@ export default {
         });
         
         this.messages = await fetchGlobalChatLastMessages();
+        
+        this.loadingMessages = false;
 
         // $refs es la propiedad especial de la Options API que contiene todas las template
         // refs del componente.
@@ -77,6 +98,10 @@ export default {
         
         // console.log("Alto del contenedor del chat después del $nextTick es: ", this.$refs.chatContainer.scrollHeight);
         this.$refs.chatContainer.scrollTop = this.$refs.chatContainer.scrollHeight;
+    },
+    unmounted() {
+        unsubscribeFromAuth();
+        unsubscribeFromChat();
     }
 }
 </script>
@@ -92,22 +117,27 @@ export default {
         -->
         <section class="overflow-y-auto w-9/12 h-100 p-4 border border-gray-200 rounded" ref="chatContainer">
             <h2 class="sr-only">Lista de mensajes</h2>
-            <ol class="flex flex-col items-start gap-4">
-                <!-- 
-                v-for es un "directiva".
-                Las directivas son funciones que permiten transformar o modificar de 
-                alguna manera el elemento.
-                -->
-                <li
-                    v-for="message in messages"
-                    :key="message.id"
-                    class="p-4 rounded bg-gray-100"
-                >
-                    <div class="mb-1"><span class="font-bold">{{ message.email }}</span> dijo:</div>
-                    <div class="mb-1">{{ message.content }}</div>
-                    <div class="text-sm text-gray-700">{{ message.created_at }}</div>
-                </li>
-            </ol>
+            <template v-if="!loadingMessages">
+                <ol class="flex flex-col items-start gap-4">
+                    <!-- 
+                    v-for es un "directiva".
+                    Las directivas son funciones que permiten transformar o modificar de 
+                    alguna manera el elemento.
+                    -->
+                    <li
+                        v-for="message in messages"
+                        :key="message.id"
+                        class="p-4 rounded bg-gray-100"
+                    >
+                        <div class="mb-1"><span class="font-bold">{{ message.email }}</span> dijo:</div>
+                        <div class="mb-1">{{ message.content }}</div>
+                        <div class="text-sm text-gray-700">{{ message.created_at }}</div>
+                    </li>
+                </ol>
+            </template>
+            <template v-else>
+                <AppLoader />
+            </template>
         </section>
         <section class="w-3/12">
             <h2 class="mb-4 text-xl">Enviar un mensaje</h2>
@@ -116,7 +146,11 @@ export default {
                 @submit.prevent="handleSubmit"
             >
                 <div class="mb-4">
-                    <label for="email" class="block mb-1">Email</label>
+                    <span class="block mb-1">Email</span>
+                    {{ user.email }}
+                </div>
+                <div class="mb-4">
+                    <label for="content" class="block mb-1">Mensaje</label>
                     <!-- 
                     v-model genera un "two-way data binding".
                     Esto significa que Vue mantiene en sincronía el valor del state y del control
@@ -124,15 +158,6 @@ export default {
                     Si el "state" cambia, Vue actualiza el valor del campo.
                     Si el usuario cambia el valor del campo, Vue actualiza el "state".
                     -->
-                    <input
-                        type="email"
-                        id="email"
-                        class="w-full p-2 border border-gray-300 rounded"
-                        v-model="newMessage.email"
-                    >
-                </div>
-                <div class="mb-4">
-                    <label for="content" class="block mb-1">Mensaje</label>
                     <textarea
                         id="content"
                         class="w-full p-2 border border-gray-300 rounded"

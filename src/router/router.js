@@ -1,11 +1,12 @@
 // Archivo de definición de rutas.
 import { createRouter, createWebHashHistory, createWebHistory } from 'vue-router';
+import { subscribeToAuthStateChanges } from '../services/auth';
 import Home from '../pages/Home.vue';
 import GlobalChat from '../pages/GlobalChat.vue';
 import Login from '../pages/Login.vue';
 import Register from '../pages/Register.vue';
 import MyProfile from '../pages/MyProfile.vue';
-import { subscribeToAuthStateChanges } from '../services/auth';
+import MyProfileEdit from '../pages/MyProfileEdit.vue';
 
 // Definimos las rutas.
 // Esto lo hacemos con un array de objetos "Route".
@@ -20,6 +21,7 @@ const routes = [
     { path: '/crear-cuenta',                component: Register, },
     { path: '/chat',                        component: GlobalChat,      meta: { requiresAuth: true, }, },
     { path: '/mi-perfil',                   component: MyProfile,       meta: { requiresAuth: true, }, },
+    { path: '/mi-perfil/editar',            component: MyProfileEdit,   meta: { requiresAuth: true, }, },
 ];
 
 // Procedemos a crear el router en sí con la función createRouter.

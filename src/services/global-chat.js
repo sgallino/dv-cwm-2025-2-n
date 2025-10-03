@@ -3,13 +3,14 @@ import { supabase } from "./supabase";
 
 /**
  * 
- * @param {{email: String, content: String}} data
+ * @param {{sender_id: String, email: String, content: String}} data
  */
-export async function sendGlobalChatNewMessage({email, content}) {
+export async function sendGlobalChatNewMessage({sender_id, email, content}) {
     // Hacemos el insert en la tabla del backend.
     const { data, error } = await supabase
         .from('global_chat_messages')
         .insert({
+            sender_id,
             email,
             content,
         });
@@ -47,6 +48,7 @@ export async function fetchGlobalChatLastMessages() {
 /**
  * 
  * @param {(newMessage: {id: String, email: String, content: String, created_at: String}) => void} callback 
+ * @returns {() => void} Función para cancelar la suscripción.
  */
 export function subscribeToGlobalChatNewMessages(callback) {
     // Agregamos la recepción de nuevos mensajes en tiempo real, con la ayuda de la API
@@ -79,5 +81,10 @@ export function subscribeToGlobalChatNewMessages(callback) {
     );
 
     // Finalmente, necesitamos suscribirnos para que esta configuración tenga efecto.
+    // Cabe destacar que solo podemos suscribirnos al canal si no estamos ya suscritos.
     chatChannel.subscribe();
+
+    return () => {
+        chatChannel.unsubscribe();
+    }
 }
