@@ -129,7 +129,15 @@ export default {
                         :key="message.id"
                         class="p-4 rounded bg-gray-100"
                     >
-                        <div class="mb-1"><span class="font-bold">{{ message.email }}</span> dijo:</div>
+                        <div class="mb-1">
+                            <RouterLink
+                                :to="`/usuario/${message.sender_id}`" 
+                                class="font-bold text-blue-700 underline"
+                            >
+                                {{ message.email }}
+                            </RouterLink> 
+                            dijo:
+                        </div>
                         <div class="mb-1">{{ message.content }}</div>
                         <div class="text-sm text-gray-700">{{ message.created_at }}</div>
                     </li>
