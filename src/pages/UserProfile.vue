@@ -4,7 +4,7 @@ import AppLoader from '../components/AppLoader.vue';
 import { getUserProfileById } from '../services/user-profiles';
 
 export default {
-    name: 'EditProfile',
+    name: 'UserProfile',
     components: { AppH1, AppLoader, },
     data() {
         return {
@@ -39,7 +39,7 @@ export default {
 
         <div class="ms-4 my-6 text-gray-800 italic">{{ user.bio ?? 'Sin especificar...' }}</div>
 
-        <dl>
+        <dl class="mb-4">
             <dt class="font-bold">Email</dt>
             <dd class="mb-2">{{ user.email }}</dd>
             <dt class="font-bold">Nombre</dt>
@@ -47,6 +47,15 @@ export default {
             <dt class="font-bold">Carrera</dt>
             <dd class="mb-2">{{ user.career ?? 'Sin especificar...' }}</dd>
         </dl>
+
+        <hr class="mb-4">
+
+        <RouterLink
+            class="text-blue-700 underline"
+            :to="`/usuario/${user.id}/chat`"
+        >
+            Iniciar conversación privada con {{ user.email }}
+        </RouterLink>
     </template>
     <template v-else>
         <AppLoader />
