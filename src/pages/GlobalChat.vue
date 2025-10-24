@@ -1,107 +1,69 @@
-<script>
+<script setup>
+import { nextTick, onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
 import AppH1 from '../components/AppH1.vue';
 import AppLoader from '../components/AppLoader.vue';
-import { subscribeToAuthStateChanges } from '../services/auth';
 import { fetchGlobalChatLastMessages, sendGlobalChatNewMessage, subscribeToGlobalChatNewMessages } from '../services/global-chat';
+import { useAuthUserState } from '../composables/useAuthUserState';
 
-let unsubscribeFromAuth = () => {}
-let unsubscribeFromChat = () => {}
+const { user } = useAuthUserState();
+const { messages, loadingMessages } = useGlobalChatMessages();
+const { newMessage, handleSubmit } = useGlobalChatNewMessageForm(user);
 
-export default {
-    name: 'GlobalChat',
-    components: { AppH1, AppLoader, },
-    // data nos permite definir el "state" del componente.
-    // Entendemos por "state" los valores que son propios del componente y que pueden variar
-    // con el tiempo.
-    // En Vue, estamos valores son "reactivos", lo que significa que Vue actualiza el HTML
-    // re-renderizando el <template> cada vez que estos valores cambien.
-    // Para registrar los valores, data debe recibir una función que retorne un array con los
-    // valores iniciales del "state".
-    data() {
-        return {
-            messages: [],
-            loadingMessages: false,
+function useGlobalChatMessages() {
+    let unsubscribeFromChat = () => {}
 
-            newMessage: {
-                content: '',
-            },
-            
-            user: {
-                id: null,
-                email: null,
-                display_name: null,
-                bio: null,
-                career: null,
-            },
-        }
-    },
-    methods: {
-        async handleSubmit() {
-            try {
-                await sendGlobalChatNewMessage({
-                    sender_id: this.user.id,
-                    email: this.user.email,
-                    content: this.newMessage.content,
-                });
-            } catch (error) {
-                // TODO ...
-            }
+    const messages = ref([]);
+    const loadingMessages = ref(false);
 
-            this.newMessage.content = '';
-        }
-    },
-    async mounted() {
-        this.loadingMessages = true;
-
-        unsubscribeFromAuth = subscribeToAuthStateChanges(userState => this.user = userState);
+    onMounted(async () => {
+        const chatContainer = useTemplateRef('chatContainer');
+        loadingMessages.value = true;
 
         unsubscribeFromChat = subscribeToGlobalChatNewMessages(async newMessage => {
-            this.messages.push(newMessage);
+            messages.value.push(newMessage);
             
-            await this.$nextTick();
-            
-            this.$refs.chatContainer.scrollTop = this.$refs.chatContainer.scrollHeight;
+            await nextTick();
+            chatContainer.value.scrollTop = chatContainer.value.scrollHeight;
         });
         
-        this.messages = await fetchGlobalChatLastMessages();
+        messages.value = await fetchGlobalChatLastMessages();
         
-        this.loadingMessages = false;
+        loadingMessages.value = false;
 
-        // $refs es la propiedad especial de la Options API que contiene todas las template
-        // refs del componente.
-        // console.log("Alto del contenedor del chat antes del $nextTick es: ", this.$refs.chatContainer.scrollHeight);
-        
-        /*
-            ¿Qué hace el nextTick?
-            Una de las tareas más exigentes que pueden tener que realizar los browsers es 
-            dibujar / renderizar (paint) la página.
-            Por esta razón, es que Vue no actualiza el DOM apenas tiene alguna indicación de
-            hacerlo.
-            Por ejemplo, cuando lo agregamos los nuevos mensajes de chat, eso implica que 
-            tiene que actualizar el DOM, para actualizar la lista de HTML.
-            Pero no lo hace de una. Sino que espera un rato para ver si hay más cambios que
-            se pidan sobre el DOM.
-            Trata de hacer un "batch" de múltiples cambios para aplicarlos todos juntos,
-            y ahorrar repaintings.
+        await nextTick();
+        chatContainer.value.scrollTop = chatContainer.value.scrollHeight;
+    });
 
-            Típicamente, esto puede pasar desapercibido por nosotros. Vue es bastante hábil
-            en cómo maneja este tipo de repaintings.
+    onUnmounted(() => unsubscribeFromChat()); // <---- Tenemos que pasar una función porque cambiamos el valor de la variable
 
-            Pero hay circunstancias donde nosotros necesitamos explícitamente esperar a que
-            alguna modificación del DOM se realice antes de proceder. Como es este caso de
-            actualizar la ubicación del scroll.
+    return {
+        messages,
+        loadingMessages,
+    }
+}
 
-            Eso es lo que nextTick() hace. Retorna una Promise que se resuelve cuando Vue
-            ejecuta un repainting a través de modificar el DOM.
-        */
-        await this.$nextTick();
-        
-        // console.log("Alto del contenedor del chat después del $nextTick es: ", this.$refs.chatContainer.scrollHeight);
-        this.$refs.chatContainer.scrollTop = this.$refs.chatContainer.scrollHeight;
-    },
-    unmounted() {
-        unsubscribeFromAuth();
-        unsubscribeFromChat();
+function useGlobalChatNewMessageForm(user) {
+    const newMessage = ref({
+        content: '',
+    });
+
+    async function handleSubmit() {
+        try {
+            await sendGlobalChatNewMessage({
+                sender_id: user.value.id,
+                email: user.value.email,
+                content: newMessage.value.content,
+            });
+        } catch (error) {
+            // TODO ...
+        }
+
+        newMessage.value.content = '';
+    }
+
+    return {
+        newMessage,
+        handleSubmit,
     }
 }
 </script>

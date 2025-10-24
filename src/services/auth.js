@@ -100,7 +100,7 @@ export async function register(email, password) {
             email: data.user.email,
         });
     } catch (error) {
-        // TODO...
+        throw error;
     }
 }
 

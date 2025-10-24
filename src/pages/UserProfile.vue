@@ -1,33 +1,39 @@
-<script>
+<script setup>
+import { onMounted, ref } from 'vue';
+import { useRoute } from 'vue-router';
+import { getUserProfileById } from '../services/user-profiles';
 import AppH1 from '../components/AppH1.vue';
 import AppLoader from '../components/AppLoader.vue';
-import { getUserProfileById } from '../services/user-profiles';
 
-export default {
-    name: 'UserProfile',
-    components: { AppH1, AppLoader, },
-    data() {
-        return {
-            user: {
-                id: null,
-                email: null,
-                display_name: null,
-                bio: null,
-                career: null,
-            },
-            loading: false,
-        }
-    },
-    async mounted() {
+const route = useRoute();
+
+const { user, loading } = useUserProfile(route.params.id);
+
+function useUserProfile(id) {
+    const user = ref({
+        id: null,
+        email: null,
+        display_name: null,
+        bio: null,
+        career: null,
+    });
+    const loading = ref(false);
+
+    onMounted(async () => {
         try {
-            this.loading = true;
+            loading.value = true;
 
-            this.user = await getUserProfileById(this.$route.params.id);
+            user.value = await getUserProfileById(id);
         } catch (error) {
             // TODO...
         }
-        this.loading = false;
-    },
+        loading.value = false;
+    });
+
+    return {
+        user,
+        loading,
+    }
 }
 </script>
 

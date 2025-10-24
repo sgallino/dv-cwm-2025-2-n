@@ -1,32 +1,8 @@
-<script>
+<script setup>
 import AppH1 from '../components/AppH1.vue';
-import { subscribeToAuthStateChanges } from '../services/auth';
+import { useAuthUserState } from '../composables/useAuthUserState';
 
-let unsubscribeFromAuth = () => {}
-
-export default {
-    name: 'MyProfile',
-    components: { AppH1, },
-    data() {
-        return {
-            user: {
-                id: null,
-                email: null,
-                display_name: null,
-                bio: null,
-                career: null,
-            },
-        }
-    },
-    mounted() {
-        // Guardamos la función para cancelar la suscripción.
-        unsubscribeFromAuth = subscribeToAuthStateChanges(userState => this.user = userState);
-    },
-    unmounted() {
-        // Cancelamos la suscripción.
-        unsubscribeFromAuth();
-    },
-}
+const { user } = useAuthUserState();
 </script>
 
 <template>

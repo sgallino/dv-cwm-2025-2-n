@@ -1,46 +1,48 @@
-<script>
+<script setup>
+import { onMounted, ref } from 'vue';
 import AppH1 from '../components/AppH1.vue';
 import AppLoader from '../components/AppLoader.vue';
-import { subscribeToAuthStateChanges, updateAuthUserProfile } from '../services/auth';
+import { updateAuthUserProfile } from '../services/auth';
+import { useAuthUserState } from '../composables/useAuthUserState';
 
-let unsubscribeFromAuth = () => {}
+const { user } = useAuthUserState();
+const { formData, loading, handleSubmit } = useProfileEditForm(user);
 
-export default {
-    name: 'MyProfileEdit',
-    components: { AppH1, AppLoader, },
-    data() {
-        return {
-            formData: {
-                display_name: null,
-                bio: null,
-                career: null,
-            },
-            loading: false,
+function useProfileEditForm(user) {
+    // let unsubscribeFromAuth = () => {}
+    const formData = ref({
+        display_name: null,
+        bio: null,
+        career: null,
+    });
+    const loading = ref(false);
+
+    async function handleSubmit() {
+        try {
+            loading.value = true;
+
+            await updateAuthUserProfile(formData.value);
+        } catch (error) {
+            // TODO...
         }
-    },
-    methods: {
-        async handleSubmit() {
-            try {
-                this.loading = true;
+        loading.value = false;
+    }
 
-                await updateAuthUserProfile(this.formData);
-            } catch (error) {
-                // TODO...
-            }
-            this.loading = false;
+    onMounted(() => {
+        formData.value = {
+            display_name: user.value.display_name,
+            bio: user.value.bio,
+            career: user.value.career,
         }
-    },
-    mounted() {
-        unsubscribeFromAuth = subscribeToAuthStateChanges(userState => {
-            this.formData = {
-                display_name: userState.display_name,
-                bio: userState.bio,
-                career: userState.career,
-            }
-        });
-    },
-    unmounted() {
-        unsubscribeFromAuth();
+    });
+
+    // onUnmounted(unsubscribeFromAuth);
+    // onUnmounted(() => unsubscribeFromAuth());
+
+    return {
+        formData,
+        loading,
+        handleSubmit,
     }
 }
 </script>

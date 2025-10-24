@@ -1,30 +1,27 @@
-<script>
-import { logout, subscribeToAuthStateChanges } from '../services/auth';
+<script setup>
+import { logout } from '../services/auth';
+import { useRouter } from 'vue-router';
+import { useAuthUserState } from '../composables/useAuthUserState';
 
-export default {
-    name: 'AppNavbar',
-    data() {
-        return {
-            user: {
-                id: null,
-                email: null,
-            },
-        }
-    },
-    methods: {
-        handleLogout() {
-            logout();
+const router = useRouter();
 
-            // Redireccionamos al login.
-            // Para redireccionar con Vue Router, tenemos que usar el método push() del Router.
-            // El Router lo tenemos disponible en la propiedad $router.
-            this.$router.push('/ingresar');
-        }
-    },
-    mounted() {
-        subscribeToAuthStateChanges(userState => this.user = userState);
+const { user } = useAuthUserState();
+const { handleLogout } = useLogoutForm();
+
+function useLogoutForm() {
+    function handleLogout() {
+        logout();
+
+        // Redireccionamos al login.
+        router.push('/ingresar');
+    }
+    
+    return {
+        handleLogout,
     }
 }
+
+// Para las funciones del ciclo de vida (mounted, unmounted) usamos funciones como onMounted y onUnmounted.
 </script>
 
 <template>

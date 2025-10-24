@@ -1,32 +1,37 @@
-<script>
-import AppH1 from '../components/AppH1.vue';
+<script setup>
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 import { register } from '../services/auth';
+import AppH1 from '../components/AppH1.vue';
 
-export default {
-    name: 'Register',
-    components: { AppH1, },
-    data() {
-        return {
-            user: {
-                email: '',
-                password: '',
-            },
-            loading: false,
-        }
-    },
-    methods: {
-        async handleSubmit() {
-            try {
-                this.loading = true;
+const router = useRouter();
 
-                await register(this.user.email, this.user.password);
-                
-                this.$router.push('/mi-perfil');
-            } catch (error) {
-                // TODO...
-            }
-            this.loading = false;
+const { user, loading, handleSubmit } = useRegisterForm(router);
+
+function useRegisterForm(router) {
+    const user = ref({
+        email: '',
+        password: '',
+    });
+    const loading = ref(false);
+
+    async function handleSubmit() {
+        try {
+            loading.value = true;
+
+            await register(user.value.email, user.value.password);
+            
+            router.push('/mi-perfil');
+        } catch (error) {
+            // TODO...
         }
+        loading.value = false;
+    }
+
+    return {
+        user,
+        loading,
+        handleSubmit,
     }
 }
 </script>

@@ -184,3 +184,27 @@ export async function subscribeToPrivateChatNewMessages(senderId, receiverId, ca
         privateChannel.unsubscribe();
     }
 }
+
+// async function testICantReadPrivateChatsInWhichImNotIn() {
+//     const pepeEmail = 'a2c27592-3b42-4d21-aad6-b31e075b4541';
+//     const saraEmail = 'c2ecaa55-5207-427b-8741-32c2b5c16805';
+
+//     const { data, error } = await supabase
+//         .from('private_chats')
+//         .select()
+//         .eq('user_id1', pepeEmail)
+//         .eq('user_id2', saraEmail);
+
+//     if(error) {
+//         console.warn('❌ [Test] Error al tratar de leer el mensaje de chat.');
+//         return;
+//     }
+
+//     if(data.length === 0) {
+//         console.log('✔ [Test] No podemos leer una conversación en la cual no participamos.');
+//     } else {
+//         console.warn('❌ [Test] Podemos leer una conversación en la cual no participamos.');
+//     }
+// }
+
+// testICantReadPrivateChatsInWhichImNotIn();
