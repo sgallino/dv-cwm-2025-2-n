@@ -9,6 +9,7 @@ const { user } = useAuthUserState();
     <div class="flex items-end gap-4">
         <AppH1>Mi perfil</AppH1>
         <RouterLink to="/mi-perfil/editar" class="mb-4 text-blue-700 underline">Editar</RouterLink>
+        <RouterLink to="/mi-perfil/editar-avatar" class="mb-4 text-blue-700 underline">Editar mi foto</RouterLink>
     </div>
 
     <div class="ms-4 my-6 text-gray-800 italic">{{ user.bio ?? 'Sin especificar...' }}</div>

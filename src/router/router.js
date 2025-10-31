@@ -9,6 +9,7 @@ import MyProfile from '../pages/MyProfile.vue';
 import MyProfileEdit from '../pages/MyProfileEdit.vue';
 import UserProfile from '../pages/UserProfile.vue';
 import PrivateChat from '../pages/PrivateChat.vue';
+import MyProfileEditAvatar from '../pages/MyProfileEditAvatar.vue';
 
 // Definimos las rutas.
 // Esto lo hacemos con un array de objetos "Route".
@@ -21,11 +22,12 @@ const routes = [
     { path: '/',                            component: Home, },
     { path: '/ingresar',                    component: Login, },
     { path: '/crear-cuenta',                component: Register, },
-    { path: '/chat',                        component: GlobalChat,      meta: { requiresAuth: true, }, },
-    { path: '/mi-perfil',                   component: MyProfile,       meta: { requiresAuth: true, }, },
-    { path: '/mi-perfil/editar',            component: MyProfileEdit,   meta: { requiresAuth: true, }, },
-    { path: '/usuario/:id',                 component: UserProfile,     meta: { requiresAuth: true, }, },
-    { path: '/usuario/:id/chat',            component: PrivateChat,     meta: { requiresAuth: true, }, },
+    { path: '/chat',                        component: GlobalChat,              meta: { requiresAuth: true, }, },
+    { path: '/mi-perfil',                   component: MyProfile,               meta: { requiresAuth: true, }, },
+    { path: '/mi-perfil/editar',            component: MyProfileEdit,           meta: { requiresAuth: true, }, },
+    { path: '/mi-perfil/editar-avatar',     component: MyProfileEditAvatar,     meta: { requiresAuth: true, }, },
+    { path: '/usuario/:id',                 component: UserProfile,             meta: { requiresAuth: true, }, },
+    { path: '/usuario/:id/chat',            component: PrivateChat,             meta: { requiresAuth: true, }, },
 ];
 
 // Procedemos a crear el router en sí con la función createRouter.

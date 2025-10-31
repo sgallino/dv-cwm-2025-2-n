@@ -1,101 +1,89 @@
-<script>
+<script setup>
 import AppH1 from '../components/AppH1.vue';
 import AppLoader from '../components/AppLoader.vue';
 import AppButton from '../components/AppButton.vue';
-import { subscribeToAuthStateChanges } from '../services/auth';
-import { fetchGlobalChatLastMessages, sendGlobalChatNewMessage, subscribeToGlobalChatNewMessages } from '../services/global-chat';
-import { getUserProfileById } from '../services/user-profiles';
 import { fetchPrivateChatLastMessages, sendPrivateChatMessage, subscribeToPrivateChatNewMessages } from '../services/private-chat';
+import { nextTick, onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
+import { useAuthUserState } from '../composables/useAuthUserState';
+import useUserProfile from '../composables/useUserProfile';
+import { useRoute } from 'vue-router';
 
-let unsubscribeFromAuth = () => {}
 let unsubscribeFromChat = () => {}
 
-export default {
-    name: 'PrivateChat',
-    components: { AppH1, AppLoader, AppButton, },
-    data() {
-        return {
-            messages: [],
-            loadingMessages: false,
+const route = useRoute();
 
-            newMessage: {
-                content: '',
-            },
-            
-            user: {
-                id: null,
-                email: null,
-                display_name: null,
-                bio: null,
-                career: null,
-            },
+const { user } = useAuthUserState();
+const { user: otherUser, loading: loadingUser } = useUserProfile(route.params.id);
+const { messages, loadingMessages } = usePrivateChatMessages(user, route.params.id);
+const { newMessage, handleSubmit } = usePrivateChatMessageForm(user, route.params.id);
 
-            otherUser: {
-                id: null,
-                email: null,
-                display_name: null,
-                bio: null,
-                career: null,
-            },
-            loadingUser: false,
-        }
-    },
-    methods: {
-        async handleSubmit() {
-            try {
-                await sendPrivateChatMessage(
-                    this.user.id,
-                    this.$route.params.id,
-                    this.newMessage.content,
-                );
-            } catch (error) {
-                // TODO ...
-            }
+function usePrivateChatMessages(user, otherId) {
+    // console.log('id: ', id);
+    // console.log('user: ', user.value);
 
-            this.newMessage.content = '';
-        }
-    },
-    async mounted() {
+    const messages = ref([]);
+    const loadingMessages = ref(false);
+
+    onMounted(async () => {
         try {
-            this.loadingMessages = true;
-            this.loadingUser = true;
-
-            unsubscribeFromAuth = subscribeToAuthStateChanges(userState => this.user = userState);
-            
-            getUserProfileById(this.$route.params.id)
-                .then(userProfile => {
-                    this.otherUser = userProfile;
-                    this.loadingUser = false;
-                });
+            const chatContainer = useTemplateRef('chatContainer');
+            loadingMessages.value = true;
 
             unsubscribeFromChat = await subscribeToPrivateChatNewMessages(
-                this.user.id,
-                this.$route.params.id,
+                user.value.id,
+                otherId,
                 async newMessage => {
-                    this.messages.push(newMessage);
+                    messages.value.push(newMessage);
         
-                    await this.$nextTick();
+                    await nextTick();
                     
-                    this.$refs.chatContainer.scrollTop = this.$refs.chatContainer.scrollHeight;
+                    chatContainer.value.scrollTop = chatContainer.value.scrollHeight;
                 });
             
-            fetchPrivateChatLastMessages(this.user.id, this.$route.params.id)
+            fetchPrivateChatLastMessages(user.value.id, otherId)
                 .then(async newMessages => {
-                    this.messages = newMessages;
-                    this.loadingMessages = false;
+                    messages.value = newMessages;
+                    loadingMessages.value = false;
                 
-                    await this.$nextTick();
+                    await nextTick();
                     
-                    this.$refs.chatContainer.scrollTop = this.$refs.chatContainer.scrollHeight;
+                    chatContainer.value.scrollTop = chatContainer.value.scrollHeight;
                 });
         } catch (error) {
-            this.loadingUser = false;
-            this.loadingMessages = false;
+            loadingMessages.value = false;
         }
-    },
-    unmounted() {
-        unsubscribeFromAuth();
-        unsubscribeFromChat();
+    });
+
+    onUnmounted(() => unsubscribeFromChat());
+
+    return {
+        messages,
+        loadingMessages,
+    }
+}
+
+function usePrivateChatMessageForm(user, otherId) {
+    const newMessage = ref({
+        content: '',
+    });
+
+    async function handleSubmit() {
+        try {
+            await sendPrivateChatMessage(
+                user.value.id,
+                otherId,
+                newMessage.value.content,
+            );
+        } catch (error) {
+            // TODO ...
+        }
+
+        newMessage.value.content = '';
+    }
+
+    return {
+        newMessage,
+        handleSubmit,
     }
 }
 </script>

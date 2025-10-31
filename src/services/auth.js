@@ -1,3 +1,4 @@
+import { uploadFile } from "./storage";
 import { supabase } from "./supabase";
 import { createUserProfile, getUserProfileById, updateUserProfile } from "./user-profiles";
 
@@ -36,6 +37,7 @@ let user = {
     display_name: null,
     bio: null,
     career: null,
+    photo_url: null,
 }
 let observers = [];
 
@@ -138,6 +140,7 @@ export async function logout() {
         display_name: null,
         bio: null,
         career: null,
+        photo_url: null,
     });
 }
 
@@ -152,7 +155,27 @@ export async function updateAuthUserProfile(data) {
         // Actualizamos los datos locales y notificamos.
         setUser(data);
     } catch (error) {
-        // TODO...
+        throw error;
+    }
+}
+
+/**
+ * 
+ * @param {File} file 
+ */
+export async function updateAuthUserAvatar(file) {
+    try {
+        const filename = `${user.id}/avatar.jpg`; // TODO: Hablar de otras extensiones.
+
+        await uploadFile(filename, file);
+
+        // TODO: Actualizar la tabla de usuarios para guardar la foto.
+    
+        setUser({
+            photo_url: filename, // TODO: Finalizar
+        });
+    } catch (error) {
+        throw error;
     }
 }
 
