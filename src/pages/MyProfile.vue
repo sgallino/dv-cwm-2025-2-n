@@ -1,5 +1,6 @@
 <script setup>
 import AppH1 from '../components/AppH1.vue';
+import UserProfileData from '../components/profile/UserProfileData.vue';
 import { useAuthUserState } from '../composables/useAuthUserState';
 
 const { user } = useAuthUserState();
@@ -12,14 +13,27 @@ const { user } = useAuthUserState();
         <RouterLink to="/mi-perfil/editar-avatar" class="mb-4 text-blue-700 underline">Editar mi foto</RouterLink>
     </div>
 
-    <div class="ms-4 my-6 text-gray-800 italic">{{ user.bio ?? 'Sin especificar...' }}</div>
+    <UserProfileData :user="user" />
+    <!-- <div class="flex gap-4">
+        <div class="w-1/4">
+            <img
+                v-if="user.photo_url"
+                :src="getFileURL(user.photo_url)"
+                alt=""
+            >
+            <span v-else>Sin imagen de perfil</span>
+        </div>
+        <div class="w-3/4">
+            <div class="ms-4 my-6 text-gray-800 italic">{{ user.bio ?? 'Sin especificar...' }}</div>
 
-    <dl>
-        <dt class="font-bold">Email</dt>
-        <dd class="mb-2">{{ user.email }}</dd>
-        <dt class="font-bold">Nombre</dt>
-        <dd class="mb-2">{{ user.display_name ?? 'Sin especificar...' }}</dd>
-        <dt class="font-bold">Carrera</dt>
-        <dd class="mb-2">{{ user.career ?? 'Sin especificar...' }}</dd>
-    </dl>
+            <dl>
+                <dt class="font-bold">Email</dt>
+                <dd class="mb-2">{{ user.email }}</dd>
+                <dt class="font-bold">Nombre</dt>
+                <dd class="mb-2">{{ user.display_name ?? 'Sin especificar...' }}</dd>
+                <dt class="font-bold">Carrera</dt>
+                <dd class="mb-2">{{ user.career ?? 'Sin especificar...' }}</dd>
+            </dl>
+        </div>
+    </div> -->
 </template>

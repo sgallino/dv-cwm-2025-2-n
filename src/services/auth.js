@@ -1,4 +1,5 @@
-import { uploadFile } from "./storage";
+import { inferExtensionFromMIME } from "../helpers/file";
+import { deleteFile, uploadFile } from "./storage";
 import { supabase } from "./supabase";
 import { createUserProfile, getUserProfileById, updateUserProfile } from "./user-profiles";
 
@@ -165,15 +166,29 @@ export async function updateAuthUserProfile(data) {
  */
 export async function updateAuthUserAvatar(file) {
     try {
-        const filename = `${user.id}/avatar.jpg`; // TODO: Hablar de otras extensiones.
+        // TODO: Provide / inject.
+        // Como sucede en web, los archivos van a reconocer de qué tipo son al guardarse por el tipo MIME, y no por
+        // su extensión.
+        // Como bien recordamos, MIME (Multipurpose Internet Mail / Media Extension) es el formato para definir
+        // tipos de archivos que se utiliza en internet, en lugar de depender de las extensiones.
+        // Los tipos MIME se definen con el formato: tipo/subtipo
+        // Por ejemplo:
+        //   text/plain, text/html, image/jpeg, image/pjpeg, image/avif, video/mp4, application/json, etc.
+        // Esto implica que, técnicamente, no necesitamos ponerle ninguna extensión al archivo para que funcione.
+        // Se le suele agregar para mejor compatibilidad con los sistemas operativos si el usuario descarga el
+        // archivo.
+        const photo_url = `${user.id}/${crypto.randomUUID()}.${inferExtensionFromMIME(file.type)}`;
 
-        await uploadFile(filename, file);
+        await uploadFile(photo_url, file);
 
-        // TODO: Actualizar la tabla de usuarios para guardar la foto.
+        await updateUserProfile(user.id, { photo_url });
+
+        deleteFile(user.photo_url)
+            /*.catch(error => {
+                // Reintentar una o dos veces eliminarlo. O, según el error, solamente enviar una señal a un log.
+            })*/; // Importante hacerlo antes de actualizar el usuario local.
     
-        setUser({
-            photo_url: filename, // TODO: Finalizar
-        });
+        setUser({ photo_url });
     } catch (error) {
         throw error;
     }

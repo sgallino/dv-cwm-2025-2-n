@@ -3,6 +3,7 @@ import { useRoute } from 'vue-router';
 import AppH1 from '../components/AppH1.vue';
 import AppLoader from '../components/AppLoader.vue';
 import useUserProfile from '../composables/useUserProfile';
+import UserProfileData from '../components/profile/UserProfileData.vue';
 
 const route = useRoute();
 
@@ -15,16 +16,7 @@ const { user, loading } = useUserProfile(route.params.id);
             <AppH1>Perfil de {{ user.email }}</AppH1>
         </div>
 
-        <div class="ms-4 my-6 text-gray-800 italic">{{ user.bio ?? 'Sin especificar...' }}</div>
-
-        <dl class="mb-4">
-            <dt class="font-bold">Email</dt>
-            <dd class="mb-2">{{ user.email }}</dd>
-            <dt class="font-bold">Nombre</dt>
-            <dd class="mb-2">{{ user.display_name ?? 'Sin especificar...' }}</dd>
-            <dt class="font-bold">Carrera</dt>
-            <dd class="mb-2">{{ user.career ?? 'Sin especificar...' }}</dd>
-        </dl>
+        <UserProfileData :user="user" />
 
         <hr class="mb-4">
 

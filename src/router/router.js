@@ -20,8 +20,8 @@ import MyProfileEditAvatar from '../pages/MyProfileEditAvatar.vue';
 // - meta. Un objeto con meta data para la ruta. Esto es, valores arbitrarios que queramos asociar a una ruta.
 const routes = [
     { path: '/',                            component: Home, },
-    { path: '/ingresar',                    component: Login, },
-    { path: '/crear-cuenta',                component: Register, },
+    { path: '/ingresar',                    component: Login,                   meta: { requiresGuest: true, }  ,},
+    { path: '/crear-cuenta',                component: Register,                meta: { requiresGuest: true, }, },
     { path: '/chat',                        component: GlobalChat,              meta: { requiresAuth: true, }, },
     { path: '/mi-perfil',                   component: MyProfile,               meta: { requiresAuth: true, }, },
     { path: '/mi-perfil/editar',            component: MyProfileEdit,           meta: { requiresAuth: true, }, },
@@ -87,6 +87,9 @@ subscribeToAuthStateChanges(userState => user = userState);
 router.beforeEach((to, from) => {
     if(to.meta.requiresAuth && user.id === null) {
         return '/ingresar';
+    }
+    if(to.meta.requiresGuest && user.id !== null) {
+        return '/mi-perfil';
     }
 
     // console.group('🚦 Router');

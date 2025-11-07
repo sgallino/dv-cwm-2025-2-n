@@ -8,8 +8,6 @@ import { useAuthUserState } from '../composables/useAuthUserState';
 import useUserProfile from '../composables/useUserProfile';
 import { useRoute } from 'vue-router';
 
-let unsubscribeFromChat = () => {}
-
 const route = useRoute();
 
 const { user } = useAuthUserState();
@@ -18,6 +16,7 @@ const { messages, loadingMessages } = usePrivateChatMessages(user, route.params.
 const { newMessage, handleSubmit } = usePrivateChatMessageForm(user, route.params.id);
 
 function usePrivateChatMessages(user, otherId) {
+    let unsubscribeFromChat = () => {}
     // console.log('id: ', id);
     // console.log('user: ', user.value);
 
