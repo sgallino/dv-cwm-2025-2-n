@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from 'vue';
+import AppLoader from './AppLoader.vue';
 
 // Para definir las "props" que un componente recibe usamos la "macro" defineProps(), que recibe como arugmento
 // lo mismo que asignaríamos a la propiedad "props".
@@ -11,6 +12,10 @@ const props = defineProps({
         type: String,
         default: 'primary',
     },
+    loading: {
+        type: Boolean,
+        default: false,
+    }
 });
 
 // Para las propiedades computadas usamos la función computed() que recibe un callback.
@@ -36,6 +41,7 @@ const buttonColor = computed(() => {
     <button 
         :class="`transition px-4 py-2 rounded cursor-pointer ${buttonColor} text-white`"
     >
-        <slot />
+        <slot v-if="!loading" />
+        <AppLoader v-else />
     </button>
 </template>
