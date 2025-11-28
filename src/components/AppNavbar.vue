@@ -43,7 +43,7 @@ function useLogoutForm() {
             .grid                           display: grid;
             .underline                      text-decoration: underline;
     -->
-    <nav class="flex items-center gap-8 p-4 bg-slate-200">
+    <nav class="flex items-center gap-8 p-4 bg-slate-900 text-white">
         <RouterLink class="text-xl" to="/">DV Social</RouterLink>
         <ul class="flex gap-4">
             <li>
