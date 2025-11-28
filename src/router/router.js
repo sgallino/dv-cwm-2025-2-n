@@ -67,7 +67,7 @@ const routes = [
 // login, entonces podemos optar por el HashHistory si lo preferimos.
 const router = createRouter({
     routes,
-    history: createWebHistory(),
+    history: createWebHashHistory(),
 });
 
 // Restringimos el acceso a rutas que requieren que el usuario esté autenticado.
